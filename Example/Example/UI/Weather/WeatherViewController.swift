@@ -8,12 +8,18 @@
 
 import UIKit
 
+//エラーを定義
+enum DisasterError: Error {
+    case unknownError
+}
+
 protocol WeatherModel {
     func fetchWeather(at area: String, date: Date, completion: @escaping (Result<Response, WeatherError>) -> Void)
 }
 
 protocol DisasterModel {
-    func fetchDisaster(completion: ((String) -> Void)?)
+    //fetchWeatherで定義しているのと同じように変更
+    func fetchDisaster(completion: @escaping (Result<String, DisasterError>) -> Void)
 }
 
 class WeatherViewController: UIViewController {
@@ -44,14 +50,23 @@ class WeatherViewController: UIViewController {
     
     @IBAction func loadWeather(_ sender: Any?) {
         self.activityIndicator.startAnimating()
-        weatherModel.fetchWeather(at: "tokyo", date: Date()) { result in
+        //資料にあったので弱参照に変更しておいた
+        weatherModel.fetchWeather(at: "tokyo", date: Date()) { [weak self] result in
             DispatchQueue.main.async {
-                self.activityIndicator.stopAnimating()
-                self.handleWeather(result: result)
+                self?.activityIndicator.stopAnimating()
+                self?.handleWeather(result: result)
             }
         }
-        disasterModel.fetchDisaster { (disaster) in
-            self.disasterLabel.text = disaster
+        //上記と同様DispatchQueue.main.async を使用 = エラー状態をハンドル
+        disasterModel.fetchDisaster { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let disaster):
+                    self?.disasterLabel.text = disaster
+                case .failure:
+                    self?.disasterLabel.text = "災害情報の取得に失敗しました"
+                }
+            }
         }
     }
     
