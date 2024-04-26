@@ -35,25 +35,22 @@ class WeatherViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
        
-        //addObserverの追加　didBecomeActiveメソッドを指定
+        //addObserverの追加
         NotificationCenter.default.addObserver(
-            self, 
-            selector:#selector(didBecomeActive),
-            name: UIApplication.didBecomeActiveNotification,
-            object: nil
+          self,
+          selector:#selector(didBecomeActive),
+          name: UIApplication.didBecomeActiveNotification,
+          object: nil
         )
     }
     
     deinit {
         print(#function)
-        //オブジェクトがメモリから解放される直前に登録したobserverを削除
-        NotificationCenter.default.removeObserver(self)
     }
     
-    //Observerが登録されたとき = アクティブになった時に実行されるメソッド
-    @objc func didBecomeActive(_ notification: Notification) {
+     @objc func didBecomeActive(_ notification: Notification) {
          loadWeather(notification.object)
-    }
+     }
     
     @IBAction func dismiss(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
