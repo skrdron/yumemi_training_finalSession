@@ -43,7 +43,6 @@ class WeatherModelImpl: WeatherModel {
         let request = Request(area: area, date: date)
         if (try? jsonString(from: request)) != nil {
             DispatchQueue.global().async {
-                //do-catchでエラーをキャッチ
                 do {
                     let requestJSON = try self.jsonString(from: request)
                     let responseJSON = try YumemiWeather.syncFetchWeather(requestJSON)
