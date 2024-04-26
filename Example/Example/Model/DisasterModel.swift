@@ -12,14 +12,12 @@ import YumemiWeather
 class DisasterModelImpl: DisasterModel {
         
     private let yumemiDisaster: YumemiDisaster
-    //成功時には文字列を、失敗時にはエラー情報を適切に返すように変更
     private var fetchDisasterHandler: ((Result<String, DisasterError>) -> Void)?
     
     init(yumemiDisaster: YumemiDisaster = YumemiDisaster()) {
         self.yumemiDisaster = yumemiDisaster
         self.yumemiDisaster.delegate = self
     }
-    //成功時には文字列を、失敗時にはエラー情報を適切に返すように変更
     func fetchDisaster(completion: @escaping (Result<String, DisasterError>) -> Void) {
         self.fetchDisasterHandler = completion
         yumemiDisaster.fetchDisaster()
@@ -32,7 +30,6 @@ extension DisasterModelImpl: YumemiDisasterHandleDelegate {
         self.fetchDisasterHandler?(.success(disaster))
     }
       
-    //成功時と同様失敗時の挙動も実装
     func handleError() {
         self.fetchDisasterHandler?(.failure(.unknownError))
     }

@@ -18,7 +18,6 @@ protocol WeatherModel {
 }
 
 protocol DisasterModel {
-    //fetchWeatherで定義しているのと同じように変更
     func fetchDisaster(completion: @escaping (Result<String, DisasterError>) -> Void)
 }
 
@@ -35,7 +34,6 @@ class WeatherViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
        
-        //addObserverの追加
         NotificationCenter.default.addObserver(
           self,
           selector:#selector(didBecomeActive),
@@ -45,27 +43,29 @@ class WeatherViewController: UIViewController {
     }
     
     deinit {
-        print(#function)
+        print("解放されるよ")
     }
     
      @objc func didBecomeActive(_ notification: Notification) {
          loadWeather(notification.object)
+         print("didBecomeActiveが呼ばれた")
      }
     
     @IBAction func dismiss(_ sender: Any) {
+        print("Closeボタンが押された")
         self.dismiss(animated: true, completion: nil)
     }
     
     @IBAction func loadWeather(_ sender: Any?) {
+        print("loadWeatherが呼ばれた")
         self.activityIndicator.startAnimating()
-        //資料にあったので弱参照に変更しておいた
         weatherModel.fetchWeather(at: "tokyo", date: Date()) { [weak self] result in
             DispatchQueue.main.async {
                 self?.activityIndicator.stopAnimating()
                 self?.handleWeather(result: result)
+                print("Weatherデータをフェッチ")
             }
         }
-        //上記と同様DispatchQueue.main.async を使用 = エラー状態をハンドル
         disasterModel.fetchDisaster { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
@@ -74,6 +74,7 @@ class WeatherViewController: UIViewController {
                 case .failure:
                     self?.disasterLabel.text = "災害情報の取得に失敗しました"
                 }
+                print("災害データをフェッチ")
             }
         }
     }
@@ -95,11 +96,11 @@ class WeatherViewController: UIViewController {
             case .unknownError:
                 message = "エラーが発生しました。"
             }
-            
+            print(message)
             let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
             alertController.addAction(UIAlertAction(title: "OK", style: .default) { _ in
                 self.dismiss(animated: true) {
-                    print("Close ViewController by \(alertController)")
+                    print("アラート出現後ボタンを押してViewControllerを閉じた")
                 }
             })
             self.present(alertController, animated: true, completion: nil)
